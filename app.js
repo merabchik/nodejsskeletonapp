@@ -40,19 +40,17 @@ app.get("/rest/users/get/:id", (req, resp) => {
 
 app.get('/render', (req, res) => {
     res.render('index', {
-        title: 'Hello, world',
+        title: 'Page title',
+        text: 'Page text',
         features: [
             {
-                name: 'Прочность',
-                value: 10,
+                src: '/images/pages/img2.jpg'
             },
             {
-                name: 'Сила',
-                value: 124,
+                src: '/images/pages/img3.jpg'
             },
             {
-                name: 'Интеллект',
-                value: 0,
+                src: '/images/pages/img4.jpg'
             }
         ]
     });
