@@ -2,11 +2,12 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const consolidate = require('consolidate');
 const mysqlInst = require('mysql');
+const dropbox = require('dropbox');
+const fetch = require('isomorphic-fetch');
 const settings = require('./config/settings');
-const vSettings = new settings();
 var environment = "dev";
-const MySQLParams = vSettings.mysqlParams(environment);
-const AppParams = vSettings.appsettings(environment);
+const MySQLParams = settings.mysqlParams(environment);
+const AppParams = settings.appsettings(environment);
 let app = new express();
 
 let con = mysqlInst.createConnection({
@@ -29,7 +30,28 @@ app.set('view engine', 'hbs');
 app.set('views', `${__dirname}/views`);
 
 app.get("/", function (req, resp) {
-    resp.send("root router");
+    resp.send("<h1>Welcome to NodeJs server app</h1>");
+});
+
+app.get("/dropbox", function (req, resp) {
+
+    var dbx = new dropbox.Dropbox({
+        accessToken: AppParams.dropbox.accessToken,
+        fetch: fetch
+    });
+    let result = dbx.filesListFolder({
+            path: '/projects/'
+        })
+        .then(function (response) {
+            response.entries.forEach(function (item) {
+                console.log(item.path_lower);
+            });
+            resp.json(response.entries);
+        })
+        .catch(function (error) {
+            console.log(error.error);
+        });
+
 });
 
 app.get("/rest/apps/list/:id", (req, resp) => {
@@ -39,6 +61,7 @@ app.get("/rest/apps/list/:id", (req, resp) => {
 app.get("/rest/users/get/:id", (req, resp) => {
     con.query("SELECT * FROM users", function (err, result, fields) {
         if (err) throw err;
+        console.log(fields);
         resp.send(result);
     });
 });
@@ -47,8 +70,7 @@ app.get('/render', (req, res) => {
     res.render('index', {
         title: 'Page title',
         text: 'Page text',
-        features: [
-            {
+        features: [{
                 src: '/images/pages/img2.jpg'
             },
             {
