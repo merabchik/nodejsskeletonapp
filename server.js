@@ -39,7 +39,7 @@ app.get("/dropbox", function (req, resp) {
         accessToken: AppParams.dropbox.accessToken,
         fetch: fetch
     });
-    let result = dbx.filesListFolder({
+    dbx.filesListFolder({
             path: '/projects/'
         })
         .then(function (response) {
